@@ -1,25 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import {
+  ChakraProvider,
+  theme,
+} from '@chakra-ui/react';
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+} from "react-router-dom";
+import { MoviesPage } from './pages';
+import { NavBar } from './organs';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export default function App() {
+  return <Router>
+    <ChakraProvider theme={theme}>
+      <NavBar />
+      <Switch>
+        <Route path="/" component={MoviesPage} />
+      </Switch>
+    </ChakraProvider>
+  </Router>
 }
-
-export default App;
