@@ -4,6 +4,7 @@ import {
     Box,
     Flex,
     Grid,
+    SimpleGrid,
     Text,
     Link,
     Button,
@@ -48,18 +49,11 @@ export default function MoviesPage() {
 
     useEffect(() => {
         if (!containerEl.current || !lastScrollTop.current) return;
-
-        const timer = setTimeout(() => {
-            containerEl.current.scroll({
-                top: lastScrollTop.current + 655,
-                behavior: 'smooth',
-            });
-            lastScrollTop.current = null;
-        }, 0);
-
-        return function () {
-            clearTimeout(timer);
-        }
+        containerEl.current.scrollTop = lastScrollTop.current;
+        containerEl.current.scroll({
+            top: lastScrollTop.current + 100,
+            behavior: 'smooth',
+        });
     }, [movies])
 
     const EmptyList = () => {
@@ -83,15 +77,15 @@ export default function MoviesPage() {
         if (!items) return <FailedToLoad />;
         if (items.length === 0) return <EmptyList />;
 
-        return (<Grid templateColumns="repeat(5, 1fr)" gap={6} p={10}>
+        return (<SimpleGrid minChildWidth="220px" gap={6} p={10}>
             {items.map((movie) => (<MovieCard key={movie.id} movie={movie} />))}
-        </Grid>);
+        </SimpleGrid>);
     }
 
     const SkeltonGrid = () => {
-        return (<Grid templateColumns="repeat(5, 1fr)" gap={6} p={10}>
+        return (<SimpleGrid minChildWidth="220px" gap={6} p={10}>
             {Array(10).fill("").map((_, index) => (<MovieCardSkeleton key={index} />))}
-        </Grid>);
+        </SimpleGrid>);
     }
 
     return (<Box p={5} fontSize="xl">

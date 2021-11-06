@@ -38,7 +38,7 @@ export default function MovieCard({ movie, }) {
     }
 
     return (
-        <Box pos="relative" maxW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden" cursor="pointer" >
+        <Box pos="relative" minW="200px" maxW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden" cursor="pointer" >
             <StarIcon
                 pos="absolute"
                 top="10px"
