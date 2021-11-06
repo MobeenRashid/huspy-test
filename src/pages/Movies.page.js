@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
     Box,
     Flex,
-    Grid,
     SimpleGrid,
     Text,
     Link,
