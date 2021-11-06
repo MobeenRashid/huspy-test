@@ -88,7 +88,7 @@ export default function MoviesPage() {
         </SimpleGrid>);
     }
 
-    return (<Box p={5} fontSize="xl">
+    return (<Box height="calc(100vh - 64px)" p={5} fontSize="xl">
         <Tabs>
             <TabList>
                 <Tab>All movies</Tab>
