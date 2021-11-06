@@ -1,3 +1,4 @@
+import { useDispatch } from 'react-redux';
 import {
     Box,
     Stack,
@@ -5,21 +6,48 @@ import {
     Text,
     Image,
     Skeleton,
+    useToast,
 } from '@chakra-ui/react';
 import { StarIcon, } from '@chakra-ui/icons';
+import actions from '../actions/movies';
 
 export default function MovieCard({ movie, }) {
+    const dispatch = useDispatch();
+    const toast = useToast();
     if (!movie) return null;
+
+    const handleStarClick = () => {
+        if (movie.favorite) {
+            dispatch(actions.removeBookMark(movie));
+            toast({
+                title: 'Removed from list',
+                status: "success",
+                position: "bottom-right",
+                duration: 1000,
+            });
+        }
+        else {
+            dispatch(actions.addBookMark(movie));
+            toast({
+                title: 'Added to list',
+                status: "success",
+                position: "bottom-right",
+                duration: 1000
+            });
+        }
+    }
+
     return (
         <Box pos="relative" maxW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden" cursor="pointer" >
             <StarIcon
                 pos="absolute"
                 top="10px"
                 right="10px"
-                color="gray.300"
+                color={movie.favorite ? "red.500" : "gray.300"}
                 _hover={{
                     color: "red.500"
                 }}
+                onClick={handleStarClick}
             />
             <Image height="200px" width="100%" objectFit="cover" src={'https://image.tmdb.org/t/p/w500' + movie.poster_path} />
             <Box p="5">

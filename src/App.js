@@ -1,4 +1,5 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import {
   ChakraProvider,
   theme,
@@ -10,14 +11,17 @@ import {
 } from "react-router-dom";
 import { MoviesPage } from './pages';
 import { NavBar } from './organs';
+import store from './store';
 
 export default function App() {
-  return <Router>
-    <ChakraProvider theme={theme}>
-      <NavBar />
-      <Switch>
-        <Route path="/" component={MoviesPage} />
-      </Switch>
-    </ChakraProvider>
-  </Router>
+  return (<Provider store={store}>
+    <Router>
+      <ChakraProvider theme={theme}>
+        <NavBar />
+        <Switch>
+          <Route path="/" component={MoviesPage} />
+        </Switch>
+      </ChakraProvider>
+    </Router>
+  </Provider>);
 }

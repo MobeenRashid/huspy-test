@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useEffect, useCallback, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
     Box,
     Flex,
@@ -8,39 +9,63 @@ import {
     Button,
     Spinner,
     Tooltip,
+    Tabs,
+    TabList,
+    TabPanels,
+    Tab,
+    TabPanel,
 } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons'
-
-import axios from 'axios';
-
+import actions from '../actions/movies';
 import { MovieCard, MovieCardSkeleton } from '../molecules';
 
+
+const selectMovies = state => state.movies.results;
+const selectBookmarks = state => state.movies.bookMarks;
+const selectPage = state => state.movies.page;
+const selectIsLoading = state => state.movies.isLoading;
+const selectIsLoadingNextPage = state => state.movies.isLoadingNextPage;
+
 export default function MoviesPage() {
-    const [isLoading, setIsLoading] = useState(true);
-    const [movies, setMovies] = useState();
+    const dispatch = useDispatch();
+    const containerEl = useRef(null);
+    const lastScrollTop = useRef(null);
+    const movies = useSelector(selectMovies);
+    const myMovies = useSelector(selectBookmarks);
+    const page = useSelector(selectPage);
+    const isLoading = useSelector(selectIsLoading);
+    const isLoadingNextPage = useSelector(selectIsLoadingNextPage);
 
 
-    const fetchMovies = useCallback(() => {
-        setIsLoading(true);
-        axios.get('https://api.themoviedb.org/3/movie/popular?api_key=f7648722afa74e8e067bc7b5c937d0de&language=en-US&page=1')
-            .then(resp => resp.data)
-            .then(data => {
-                setMovies(data.results);
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
-    }, [])
+    const fetchMovies = useCallback((page = 1) => {
+        if (containerEl && containerEl.current) lastScrollTop.current = containerEl.current.scrollTop;
+        dispatch(actions.fetchMovies(page));
+    }, [dispatch])
 
     useEffect(() => {
         fetchMovies();
     }, [fetchMovies]);
 
+    useEffect(() => {
+        if (!containerEl.current || !lastScrollTop.current) return;
+
+        const timer = setTimeout(() => {
+            containerEl.current.scroll({
+                top: lastScrollTop.current + 655,
+                behavior: 'smooth',
+            });
+            lastScrollTop.current = null;
+        }, 0);
+
+        return function () {
+            clearTimeout(timer);
+        }
+    }, [movies])
 
     const EmptyList = () => {
         return (<Flex minH="calc(100vh - 192px)" justifyContent="center" alignItems="center">
             <Text color="gray.400" fontSize="sm">
-                No movies.
+                Empty list
             </Text>
         </Flex>);
     }
@@ -48,48 +73,67 @@ export default function MoviesPage() {
     const FailedToLoad = () => {
         return (<Flex minH="calc(100vh - 192px)" justifyContent="center" alignItems="center">
             <Text color="gray.400" fontSize="sm">
-                Failed to load movies.
-                <Link color="blue.300" ml="5px" onClick={(e) => { e.preventDefault(); fetchMovies(); }}>Retry.</Link>
+                Failed to load data
+                <Link color="blue.300" ml="5px" onClick={(e) => { e.preventDefault(); fetchMovies(); }}>Retry</Link>
             </Text>
         </Flex>);
     }
 
-    const Movies = () => {
-        if (!movies) return <FailedToLoad />;
-        if (movies.length === 0) return <EmptyList />;
+    const MoviesGrid = ({ items, }) => {
+        if (!items) return <FailedToLoad />;
+        if (items.length === 0) return <EmptyList />;
 
         return (<Grid templateColumns="repeat(5, 1fr)" gap={6} p={10}>
-            {movies.map((movie, index) => (<MovieCard key={index} movie={movie} />))}
+            {items.map((movie) => (<MovieCard key={movie.id} movie={movie} />))}
         </Grid>);
     }
 
-    if (isLoading) {
-        console.log('returning skelton...')
+    const SkeltonGrid = () => {
         return (<Grid templateColumns="repeat(5, 1fr)" gap={6} p={10}>
             {Array(10).fill("").map((_, index) => (<MovieCardSkeleton key={index} />))}
         </Grid>);
     }
+
     return (<Box p={5} fontSize="xl">
-        <Movies />
-        <Box display="flex" mb="50px" height="100px" alignItems="center" justifyContent="center">
-            <Tooltip label="Show more results" placement="top" openDelay="1000">
-                <Button
-                    fontSize="xxx-large"
-                    variant="unstyled"
-                    color="gray.400"
-                    _hover={{
-                        color: "gray.500",
-                    }}>
-                    <ChevronDownIcon />
-                    {/* <Text>Show more results</Text> */}
-                </Button>
-            </Tooltip>
-            {/* <Spinner
-                thickness="4px"
-                speed="0.65s"
-                emptyColor="gray.200"
-                color="gray.400"
-                size="xl" /> */}
-        </Box>
+        <Tabs>
+            <TabList>
+                <Tab>All movies</Tab>
+                <Tab>My movies</Tab>
+            </TabList>
+            <TabPanels>
+                <TabPanel ref={containerEl} height="calc(100vh - 127px)" overflowY="auto">
+                    {isLoading
+                        ? <SkeltonGrid />
+                        : <>
+                            <MoviesGrid items={movies} />
+                            {(movies && movies.length) && <Box display="flex" height="100px" alignItems="center" justifyContent="center">
+                                {isLoadingNextPage
+                                    ? <Spinner
+                                        thickness="4px"
+                                        speed="0.65s"
+                                        emptyColor="gray.200"
+                                        color="gray.400"
+                                        size="xl" />
+                                    : <Tooltip label="Show more results" placement="top" openDelay="500">
+                                        <Button
+                                            variant="unstyled"
+                                            color="gray.400"
+                                            height="auto"
+                                            _hover={{
+                                                color: "gray.500",
+                                            }}
+                                            onClick={fetchMovies.bind(this, page + 1)}>
+                                            <ChevronDownIcon height="48px" width="48px" />
+                                        </Button>
+                                    </Tooltip>
+                                }
+                            </Box>}
+                        </>}
+                </TabPanel>
+                <TabPanel>
+                    <MoviesGrid items={myMovies} />
+                </TabPanel>
+            </TabPanels>
+        </Tabs>
     </Box>);
 }
