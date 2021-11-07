@@ -53,6 +53,7 @@ export default function MoviesPage() {
             top: lastScrollTop.current + 100,
             behavior: 'smooth',
         });
+        lastScrollTop.current = null;
     }, [movies])
 
     const EmptyList = () => {
