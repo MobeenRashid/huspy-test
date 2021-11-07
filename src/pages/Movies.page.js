@@ -77,8 +77,8 @@ export default function MoviesPage() {
         if (!items) return <FailedToLoad />;
         if (items.length === 0) return <EmptyList />;
 
-        if (items.length < 6)
-            return (<SimpleGrid minChildWidth="220px" templateColumns="repeat(6, 1fr)" gap={6} p={10}>
+        if (items.length < 6 && window.innerWidth > 800)
+            return (<SimpleGrid  minChildWidth="220px" templateColumns="repeat(6, 1fr)" gap={6} p={10}>
                 {items.map((movie) => (<MovieCard key={movie.id} movie={movie} />))}
             </SimpleGrid>);
 
@@ -93,7 +93,7 @@ export default function MoviesPage() {
         </SimpleGrid>);
     }
 
-    return (<Box height="calc(100vh - 64px)" p={5} fontSize="xl">
+    return (<Box minW="350px" height="calc(100vh - 64px)" p={5} fontSize="xl">
         <Tabs>
             <TabList>
                 <Tab>All movies</Tab>
