@@ -76,6 +76,11 @@ export default function MoviesPage() {
         if (!items) return <FailedToLoad />;
         if (items.length === 0) return <EmptyList />;
 
+        if (items.length < 6)
+            return (<SimpleGrid minChildWidth="220px" templateColumns="repeat(6, 1fr)" gap={6} p={10}>
+                {items.map((movie) => (<MovieCard key={movie.id} movie={movie} />))}
+            </SimpleGrid>);
+
         return (<SimpleGrid minChildWidth="220px" gap={6} p={10}>
             {items.map((movie) => (<MovieCard key={movie.id} movie={movie} />))}
         </SimpleGrid>);
