@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import config from '../config.json';
 
 export const actionTypes = {
     SET_MOVIE_RESULTS: 'SET_MOVIE_RESULTS',
@@ -55,7 +55,7 @@ function setIsLoadingNextPage(value) {
 export const fetchMovies = (page = 1) => dispatch => {
     const setLoading = (page > 1) ? setIsLoadingNextPage : setIsLoading;
     dispatch(setLoading(true));
-    axios.get(`https://api.themoviedb.org/3/movie/popular?api_key=f7648722afa74e8e067bc7b5c937d0de&language=en-US&page=${page}`)
+    axios.get(`${config.SERVER_URL}/movie/popular?api_key=${process.env.REACT_APP_HUSPY_API_KEY}&language=en-US&page=${page}`)
         .then(resp => resp.data)
         .then(data => {
             if (page > 1) dispatch(pushMovies(data.results));
